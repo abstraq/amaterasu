@@ -1,0 +1,51 @@
+name: amaterasu
+description: Open-source client for viewing Twitch streams on IOS and Android.
+version: 1.0.0
+
+environment:
+  sdk: ">=2.18.2 <3.0.0"
+  flutter: ">=3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^2.0.2
+  flutter_secure_storage: ^6.0.0
+  flutter_svg: ^1.1.5
+  flutter_web_auth_2: ^1.1.2
+  freezed_annotation: ^2.2.0
+  go_router: ^5.1.0
+  http: ^0.13.5
+  json_annotation: ^4.7.0
+  riverpod_annotation: ^1.0.4
+  riverpod_generator: ^1.0.4
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+  build_runner: ^2.3.0
+  freezed: ^2.2.0
+  json_serializable: ^6.5.1
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/logo.svg
+  fonts:
+    - family: Assistant
+      fonts:
+        - asset: assets/fonts/Assistant-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Assistant-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Assistant-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Assistant-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Assistant-Light.ttf
+          weight: 300
+
+# The following line prevents the package from being accidentally published to
+# pub.dev using `flutter pub publish`. This is preferred for private packages.
+publish_to: "none"
