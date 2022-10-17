@@ -6,23 +6,24 @@ class AuthScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
+          children: [
             Text(
               "Welcome to Amaterasu",
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 24),
+              style: textTheme.headline5,
             ),
             Text(
               "Let's get started, press the button below to connect your Twitch account.",
-              style: TextStyle(fontSize: 11),
+              style: textTheme.subtitle2,
             ),
-            SizedBox(height: 32),
-            LoginButton()
+            const SizedBox(height: 32),
+            const LoginButton()
           ],
         ),
       ),

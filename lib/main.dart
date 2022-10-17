@@ -1,4 +1,5 @@
 import "package:amaterasu/routing/router.dart";
+import "package:amaterasu/themes/default_theme.dart";
 import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
@@ -18,6 +19,7 @@ class AmaterasuApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       title: "Amaterasu",
       themeMode: ThemeMode.dark,
+      darkTheme: darkTheme,
       routerConfig: router,
     );
   }
