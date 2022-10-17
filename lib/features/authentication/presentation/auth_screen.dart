@@ -1,5 +1,3 @@
-import "dart:developer";
-
 import "package:amaterasu/features/authentication/presentation/login_button.dart";
 import "package:flutter/material.dart";
 
@@ -8,7 +6,6 @@ class AuthScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    log("Rebuilt AuthScreen ${DateTime.now()}");
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(16.0),
