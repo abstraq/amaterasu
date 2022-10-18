@@ -11,7 +11,8 @@ class HomeScreen extends ConsumerWidget {
       body: const Text("Home"),
       persistentFooterButtons: [
         ElevatedButton(
-            onPressed: () async => ref.read(authControllerProvider.notifier).logout(), child: const Text("Sign out"))
+            onPressed: () async => ref.read(authControllerProvider.notifier).removeTwitchAccount(),
+            child: const Text("Sign out"))
       ],
     );
   }
