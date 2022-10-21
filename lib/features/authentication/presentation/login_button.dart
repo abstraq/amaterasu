@@ -8,7 +8,7 @@ class LoginButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return SizedBox(
-      height: 32,
+      height: 60,
       child: ElevatedButton(
         onPressed: () async => ref.read(authControllerProvider.notifier).connectTwitchAccount(),
         child: const Text("Connect with Twitch"),

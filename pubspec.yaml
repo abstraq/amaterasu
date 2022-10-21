@@ -33,18 +33,18 @@ flutter:
   assets:
     - assets/logo.svg
   fonts:
-    - family: Assistant
+    - family: Satoshi
       fonts:
-        - asset: assets/fonts/Assistant-Bold.ttf
-          weight: 700
-        - asset: assets/fonts/Assistant-SemiBold.ttf
-          weight: 600
-        - asset: assets/fonts/Assistant-Medium.ttf
-          weight: 500
-        - asset: assets/fonts/Assistant-Regular.ttf
-          weight: 400
-        - asset: assets/fonts/Assistant-Light.ttf
-          weight: 300
+        - asset: assets/fonts/Satoshi-Black.otf
+        - asset: assets/fonts/Satoshi-BlackItalic.otf
+        - asset: assets/fonts/Satoshi-Bold.otf
+        - asset: assets/fonts/Satoshi-BoldItalic.otf
+        - asset: assets/fonts/Satoshi-Italic.otf
+        - asset: assets/fonts/Satoshi-Light.otf
+        - asset: assets/fonts/Satoshi-LightItalic.otf
+        - asset: assets/fonts/Satoshi-Medium.otf
+        - asset: assets/fonts/Satoshi-MediumItalic.otf
+        - asset: assets/fonts/Satoshi-Regular.otf
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
