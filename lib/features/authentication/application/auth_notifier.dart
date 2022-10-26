@@ -42,6 +42,9 @@ class AuthNotifier extends _$AuthNotifier {
   }
 
   /// Signs in the user with the given [accessToken].
+  ///
+  /// The [accessToken] is stored in the secure storage and will be used to
+  /// authenticate requests to the Twitch API.
   Future<void> login(final String accessToken) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
@@ -50,6 +53,9 @@ class AuthNotifier extends _$AuthNotifier {
     });
   }
 
+  /// Signs the user out of the application.
+  ///
+  /// This will remove the user's access token from the storage and revoke it.
   Future<void> logout() async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
@@ -57,4 +63,8 @@ class AuthNotifier extends _$AuthNotifier {
       return null;
     });
   }
+
+  bool get isLoading => state.isLoading;
+
+  bool get isAuthenticated => state.valueOrNull != null;
 }

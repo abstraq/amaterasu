@@ -3,6 +3,12 @@ import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:webview_flutter/webview_flutter.dart";
 
+/// A [WebView] that is used to authorize the user with Twitch.
+///
+/// This widget will display the Twitch authorization page that prompts the
+/// user to login and authorize the application. Once the user has authorized
+/// the application, the authorization code will be extracted from the redirect
+/// URL and passed to the [AuthNotifier] to complete the authentication process.
 class TwitchAuthorizationWebView extends ConsumerWidget {
   static const String _defaultClientId = "smff7b2spurx6aq29h8sfevqiee8uv";
   static const List<String> _requiredScopes = [

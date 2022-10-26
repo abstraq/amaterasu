@@ -1,11 +1,20 @@
+import "dart:developer";
+
 import "package:amaterasu/router.dart";
 import "package:amaterasu/themes/default_theme.dart";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
+class LoggerObserver extends ProviderObserver {
+  @override
+  void didUpdateProvider(ProviderBase provider, Object? previousValue, Object? newValue, ProviderContainer container) {
+    log("didUpdateProvider: $provider $previousValue -> $newValue");
+  }
+}
+
 void main() {
-  runApp(const ProviderScope(child: AmaterasuApp()));
+  runApp(ProviderScope(observers: [LoggerObserver()], child: const AmaterasuApp()));
 }
 
 /// Root widget of the application.

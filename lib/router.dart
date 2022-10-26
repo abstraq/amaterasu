@@ -11,7 +11,7 @@ final _key = GlobalKey<NavigatorState>();
 
 @riverpod
 GoRouter router(RouterRef ref) {
-  final authNotifierState = ref.watch(authNotifierProvider);
+  ref.watch(authNotifierProvider);
   final notifier = ref.read(authNotifierProvider.notifier);
 
   return GoRouter(
@@ -23,25 +23,19 @@ GoRouter router(RouterRef ref) {
       GoRoute(path: "/splash", name: "splash", builder: (_, __) => const Center(child: CircularProgressIndicator())),
     ],
     redirect: (context, state) {
-      return authNotifierState.when(
-        data: (account) {
-          final isAuthenticated = account != null;
-          // If the user is at the splash screen and is authenticated, redirect to the home screen.
-          // Otherwise, if the user is at the splash screen and is not authenticated, redirect to the auth screen.
-          if (state.location == "/splash") {
-            return isAuthenticated ? "/" : "/auth";
-          }
+      if (notifier.isLoading) return null;
 
-          // If the user is at the auth screen and is authenticated, redirect to the home screen.
-          // Otherwise, if the user is at the auth screen and is not authenticated, do nothing.
-          if (state.location == "/auth") {
-            return isAuthenticated ? "/" : null;
-          }
-          return null;
-        },
-        error: (_, __) => null,
-        loading: () => null,
-      );
+      final isAuthenticated = notifier.isAuthenticated;
+
+      // If the user is at the splash screen and is authenticated, redirect to the home screen.
+      // Otherwise, if the user is at the splash screen and is not authenticated, redirect to the auth screen.
+      if (state.location == "/splash") return isAuthenticated ? "/" : "/auth";
+
+      // If the user is at the auth screen and is authenticated, redirect to the home screen.
+      // Otherwise, if the user is at the auth screen and is not authenticated, do nothing.
+      if (state.location == "/auth") return isAuthenticated ? "/" : null;
+
+      return isAuthenticated ? null : "/splash";
     },
   );
 }

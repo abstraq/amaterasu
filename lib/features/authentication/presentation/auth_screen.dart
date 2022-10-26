@@ -5,14 +5,17 @@ import "package:amaterasu/features/authentication/presentation/twitch_authorizat
 import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
+/// Screen that is displayed when the user is not authenticated.
+///
+/// This screen will display a button that will open a webview to authenticate
+/// the user with Twitch.
 class AuthScreen extends ConsumerWidget {
   const AuthScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.listen(authNotifierProvider, (_, currentState) {
-      log("Auth state changed: $currentState");
-    });
+    log("Rebuilt AuthScreen");
+    ref.listen(authNotifierProvider, (prevState, currentState) => log("listener: $prevState -> $currentState"));
 
     final textTheme = Theme.of(context).textTheme;
     return Scaffold(
