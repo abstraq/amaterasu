@@ -1,132 +1,88 @@
-import "package:amaterasu/features/authentication/data/exceptions/twitch_auth_api_exceptions.dart";
-import "package:amaterasu/features/authentication/data/sources/secure_storage_data_source.dart";
-import "package:amaterasu/features/authentication/data/sources/twitch_auth_api_data_source.dart";
-import "package:amaterasu/features/authentication/domain/credentials.dart";
-import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:amaterasu/features/authentication/data/secure_storage_data_source.dart";
+import "package:amaterasu/features/authentication/data/twitch_auth_api_data_source.dart";
+import "package:amaterasu/features/authentication/domain/twitch_account.dart";
+import "package:riverpod_annotation/riverpod_annotation.dart";
 
+part "auth_repository.g.dart";
+
+/// Repository for authentication-related operations.
+///
+/// This repository is responsible for storing information used to authenticate
+/// the user with the Twitch API.
 class AuthRepository {
   final TwitchAuthApiDataSource _twitchAuthApiDataSource;
   final SecureStorageDataSource _secureStorageDataSource;
 
-  AuthRepository(Ref ref)
-      : _twitchAuthApiDataSource = ref.watch(twitchAuthApiDataSourceProvider),
-        _secureStorageDataSource = ref.watch(secureStorageDataSourceProvider);
+  AuthRepository(TwitchAuthApiDataSource twitchAuthApiDataSource, SecureStorageDataSource secureStorageDataSource)
+      : _twitchAuthApiDataSource = twitchAuthApiDataSource,
+        _secureStorageDataSource = secureStorageDataSource;
 
-  Credentials? _cachedCredentials;
+  /// Stores the given [accessToken] in the secure storage.
+  ///
+  /// Retrieves information about the Twitch account associated with the given
+  /// access token and stores the token in the secure storage.
+  ///
+  /// Throws a [StorageException] if the storage operation fails.
+  /// Throws a [HttpException] if the API call fails.
+  ///
+  /// Returns the [TwitchAccount] associated with the given access token.
+  Future<TwitchAccount> addTwitchAccount(final String accessToken) async {
+    final response = await _twitchAuthApiDataSource.validateToken(accessToken);
+    await _secureStorageDataSource.writeAccessToken(accessToken);
 
-  /// Creates new [Credentials] for the user.
-  ///
-  /// If `isAnonymous` is `true`, the user will be logged in anonymously.
-  ///
-  /// Otherwise, this method will open a web browser and prompt the user to log
-  /// in to their Twitch account and authorize the application. After the user
-  /// accepts, the application will receive an access token to make requests to
-  /// the Twitch API on behalf of the user. The access token is then stored in the secure
-  /// storage of the device.
-  ///
-  /// Throws a [AuthorizationCancelledException] if the user cancelled the
-  /// authorization process.
-  ///
-  /// Throws a [StateMismatchException] if the state parameter returned by the
-  /// Twitch API does not match the state parameter sent by the application. This
-  /// may indicate that the user was victim to a CSRF attack.
-  ///
-  /// Throws a [MalformedCallbackException] if the callback URL returned by the
-  /// Twitch API does not contain an access token.
-  ///
-  /// Throws a [APIResponseException] if the Twitch API returned a non success status
-  /// code when validating the token.
-  ///
-  /// Throws a [StorageException] if the access token could not be stored in the
-  /// secure storage of the device.
-  Future<Credentials> addCredentials({isAnonymous = false}) async {
-    // If the user is signing in anonymously, we don't need to request an access token from the Twitch API.
-    if (isAnonymous) return _cachedCredentials = const Credentials.anonymous();
+    final id = response!.userId;
+    final username = response.login;
+    final clientId = response.clientId;
 
-    final token = await _twitchAuthApiDataSource.authorizeClient();
-    final tokenInformation = await _twitchAuthApiDataSource.validateToken(token);
-    await _secureStorageDataSource.writeAccessToken(token);
-    return _cachedCredentials = Credentials.user(
-      clientId: tokenInformation.clientId,
-      accessToken: token,
-      login: tokenInformation.login,
-      userId: tokenInformation.userId,
-    );
+    return TwitchAccount(id: id, username: username, accessToken: accessToken, clientId: clientId);
   }
 
-  /// Revokes the access token authorization for the client.
+  /// Retrieves the [TwitchAccount] of the currently authenticated user.
   ///
-  /// The access token will be revoked and removed from the secure storage of the
-  /// device.
+  /// If the token of the currently authenticated user is invalid this method
+  /// will silently delete it from the secure storage and return null.
   ///
-  /// The access token is then stored in the secure storage of the device.
+  /// Returns the [TwitchAccount] if it exists, otherwise returns null.
   ///
-  /// Throws a [APIResponseException] if the Twitch API returned a non success status
-  /// code when revoking the token or getting the token information.
-  ///
-  /// Throws a [StorageException] if the access token could not be removed from the
-  /// secure storage of the device.
-  Future<void> deleteCredentials({bool revoke = true}) async {
-    final credentials = await retrieveCredentials();
-    if (credentials == null) return;
-    if (credentials is UserCredentials) {
-      if (revoke) {
-        await _twitchAuthApiDataSource.revokeToken(credentials.accessToken, clientId: credentials.clientId);
-      }
+  /// Throws a [StorageException] if the storage operation fails.
+  /// Throws a [HttpException] if the API call fails.
+  Future<TwitchAccount?> retrieveTwitchAccount() async {
+    final accessToken = await _secureStorageDataSource.readAccessToken();
+    if (accessToken == null) return null;
+
+    final response = await _twitchAuthApiDataSource.validateToken(accessToken);
+
+    // If the token is invalid, remove it from the secure storage.
+    if (response == null) {
       await _secureStorageDataSource.deleteAccessToken();
+      return null;
     }
-    _cachedCredentials = null;
+
+    final id = response.userId;
+    final username = response.login;
+    final clientId = response.clientId;
+
+    return TwitchAccount(id: id, username: username, accessToken: accessToken, clientId: clientId);
   }
 
-  /// Retrieves the access token used to make requests to the Twitch API.
+  /// Revokes the access token of the currently authenticated user and deletes
+  /// it from the secure storage.
   ///
-  /// If the access token is cached, it will be returned immediately, otherwise
-  /// it will be retrieved from the secure storage of the device.
-  ///
-  /// Throws a [StorageException] if the access token could not be retrieved from
-  /// the secure storage of the device.
-  ///
-  /// Returns the access token if it was successfully retrieved or null if it was
-  /// not found.
-  Future<Credentials?> retrieveCredentials() async {
-    if (_cachedCredentials != null) return _cachedCredentials;
+  /// Throws a [StorageException] if the storage operation fails.
+  /// Throws a [HttpException] if the API call fails.
+  Future<void> deleteTwitchAccount() async {
+    final account = await retrieveTwitchAccount();
+    if (account == null) return;
 
-    final token = await _secureStorageDataSource.readAccessToken();
-    if (token == null) return null;
-
-    // If the access token is invalid, we delete it from the secure storage.
-    try {
-      final tokenInformation = await _twitchAuthApiDataSource.validateToken(token);
-      return _cachedCredentials = Credentials.user(
-        clientId: tokenInformation.clientId,
-        accessToken: token,
-        login: tokenInformation.login,
-        userId: tokenInformation.userId,
-      );
-    } on APIResponseException catch (e) {
-      if (e.statusCode == 401) {
-        await _secureStorageDataSource.deleteAccessToken();
-        return null;
-      }
-      rethrow;
-    }
-  }
-
-  Future<bool> isCredentialsValid() async {
-    final credentials = _cachedCredentials;
-    if (credentials == null) return false;
-
-    if (credentials is UserCredentials) {
-      try {
-        await _twitchAuthApiDataSource.validateToken(credentials.accessToken);
-        return true;
-      } on APIResponseException catch (e) {
-        if (e.statusCode == 401) return false;
-        rethrow;
-      }
-    }
-    return false;
+    await _twitchAuthApiDataSource.revokeToken(accessToken: account.accessToken, clientId: account.clientId);
+    await _secureStorageDataSource.deleteAccessToken();
   }
 }
 
-final authRepositoryProvider = Provider<AuthRepository>((ref) => AuthRepository(ref));
+@riverpod
+AuthRepository authRepository(AuthRepositoryRef ref) {
+  return AuthRepository(
+    ref.watch(twitchAuthApiDataSourceProvider),
+    ref.watch(secureStorageDataSourceProvider),
+  );
+}
