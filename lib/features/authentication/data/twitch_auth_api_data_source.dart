@@ -1,5 +1,6 @@
 import "dart:convert";
 
+import "package:amaterasu/core/data/logged_http_client.dart";
 import "package:amaterasu/core/exceptions/http_exception.dart";
 import "package:amaterasu/features/authentication/data/entities/validate_token_response.dart";
 import "package:http/http.dart";
@@ -57,7 +58,7 @@ class TwitchAuthApiDataSource {
 
 @riverpod
 TwitchAuthApiDataSource twitchAuthApiDataSource(TwitchAuthApiDataSourceRef ref) {
-  final client = Client();
+  final client = LoggedHttpClient();
 
   // Close the http client when the provider is disposed.
   ref.onDispose(client.close);
