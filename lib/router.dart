@@ -1,18 +1,18 @@
 import "package:amaterasu/features/authentication/application/auth_notifier.dart";
 import "package:amaterasu/features/authentication/presentation/auth_screen.dart";
 import "package:amaterasu/features/home/presentation/home_screen.dart";
+import "package:amaterasu/features/splash/presentation/splash_screen.dart";
 import "package:flutter/material.dart";
 import "package:go_router/go_router.dart";
 import "package:riverpod_annotation/riverpod_annotation.dart";
 
 part "router.g.dart";
 
-final _key = GlobalKey<NavigatorState>();
+final GlobalKey<NavigatorState> _key = GlobalKey();
 
 @riverpod
 GoRouter router(RouterRef ref) {
-  ref.watch(authNotifierProvider);
-  final notifier = ref.read(authNotifierProvider.notifier);
+  final authNotifierState = ref.watch(authNotifierProvider);
 
   return GoRouter(
     navigatorKey: _key,
@@ -20,22 +20,19 @@ GoRouter router(RouterRef ref) {
     routes: [
       GoRoute(path: "/", name: "home", builder: (_, __) => const HomeScreen()),
       GoRoute(path: "/auth", name: "auth", builder: (_, __) => const AuthScreen()),
-      GoRoute(path: "/splash", name: "splash", builder: (_, __) => const Center(child: CircularProgressIndicator())),
+      GoRoute(path: "/splash", name: "splash", builder: (_, __) => const SplashScreen()),
     ],
-    redirect: (context, state) {
-      if (notifier.isLoading) return null;
+    redirect: (context, state) async {
+      final currentAccount = authNotifierState.valueOrNull;
+      final isAuthenticated = currentAccount != null;
 
-      final isAuthenticated = notifier.isAuthenticated;
+      // If the user is authenticated, they should not be able to access the auth or splash screen.
+      if (isAuthenticated && ["/splash", "/auth"].contains(state.location)) return "/";
 
-      // If the user is at the splash screen and is authenticated, redirect to the home screen.
-      // Otherwise, if the user is at the splash screen and is not authenticated, redirect to the auth screen.
-      if (state.location == "/splash") return isAuthenticated ? "/" : "/auth";
+      // If the user is not authenticated, they should be at the auth screen.
+      if (!isAuthenticated && state.location != "/auth") return "/auth";
 
-      // If the user is at the auth screen and is authenticated, redirect to the home screen.
-      // Otherwise, if the user is at the auth screen and is not authenticated, do nothing.
-      if (state.location == "/auth") return isAuthenticated ? "/" : null;
-
-      return isAuthenticated ? null : "/splash";
+      return null;
     },
   );
 }

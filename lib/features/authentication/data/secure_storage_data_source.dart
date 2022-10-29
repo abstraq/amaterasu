@@ -20,7 +20,6 @@ class SecureStorageDataSource {
   ///
   /// Throws a [StorageException] if the storage operation fails.
   Future<void> writeAccessToken(String accessToken) {
-    throw StorageException("Failed to write access token to secure storage.");
     try {
       return _storage.write(key: _tokenStorageKey, value: accessToken);
     } on PlatformException catch (e) {

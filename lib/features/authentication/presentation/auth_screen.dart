@@ -1,5 +1,3 @@
-import "dart:developer";
-
 import "package:amaterasu/features/authentication/application/auth_notifier.dart";
 import "package:amaterasu/features/authentication/presentation/twitch_authorization_web_view.dart";
 import "package:flutter/material.dart";
@@ -14,9 +12,6 @@ class AuthScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    log("Rebuilt AuthScreen");
-    ref.listen(authNotifierProvider, (prevState, currentState) => log("listener: $prevState -> $currentState"));
-
     final textTheme = Theme.of(context).textTheme;
     return Scaffold(
       body: Padding(
@@ -25,10 +20,7 @@ class AuthScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              "Welcome to Amaterasu",
-              style: textTheme.headline5,
-            ),
+            Text("Welcome to Amaterasu", style: textTheme.headline5),
             Text(
               "Let's get started, press the button below to connect your Twitch account.",
               style: textTheme.subtitle2,
