@@ -47,5 +47,5 @@ app.*.map.json
 .env
 
 # Generated Code
-*.g.dart
-*.freezed.dart
+*.*.dart
+coverage/
