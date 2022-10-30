@@ -2,7 +2,7 @@ import "dart:convert";
 
 import "package:amaterasu/core/data/logged_http_client.dart";
 import "package:amaterasu/core/exceptions/http_exception.dart";
-import "package:amaterasu/features/authentication/data/entities/validate_token_response.dart";
+import "package:amaterasu/features/authentication/domain/validate_token_response.dart";
 import "package:http/http.dart";
 import "package:riverpod_annotation/riverpod_annotation.dart";
 
