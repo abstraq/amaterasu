@@ -1,5 +1,5 @@
 import "package:amaterasu/core/exceptions/http_exception.dart";
-import "package:amaterasu/features/authentication/data/twitch_auth_api_data_source.dart";
+import "package:amaterasu/features/accounts/data/twitch_auth_api_data_source.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:http/http.dart";
 import "package:mockito/annotations.dart";

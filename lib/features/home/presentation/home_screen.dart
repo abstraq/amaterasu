@@ -1,4 +1,4 @@
-import "package:amaterasu/features/authentication/application/auth_notifier.dart";
+import "package:amaterasu/features/accounts/application/auth_notifier.dart";
 import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
@@ -8,7 +8,7 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      body: const Text("Home"),
+      appBar: AppBar(title: const Text("Home")),
       persistentFooterButtons: [
         ElevatedButton(
           onPressed: () async => ref.read(authNotifierProvider.notifier).logout(),

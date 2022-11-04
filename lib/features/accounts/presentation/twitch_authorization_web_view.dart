@@ -1,4 +1,4 @@
-import "package:amaterasu/features/authentication/application/auth_notifier.dart";
+import "package:amaterasu/features/accounts/application/auth_notifier.dart";
 import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:webview_flutter/webview_flutter.dart";
@@ -47,7 +47,7 @@ class TwitchAuthorizationWebView extends ConsumerWidget {
           final fragmentParams = Uri.splitQueryString(Uri.parse(request.url).fragment);
           final accessToken = fragmentParams["access_token"];
           if (accessToken != null) {
-            ref.read(authNotifierProvider.notifier).login(accessToken);
+            ref.read(authNotifierProvider.notifier).addAccount(accessToken);
           }
 
           Navigator.of(context).pop();

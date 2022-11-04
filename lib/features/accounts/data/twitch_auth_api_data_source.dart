@@ -2,7 +2,7 @@ import "dart:convert";
 
 import "package:amaterasu/core/data/logged_http_client.dart";
 import "package:amaterasu/core/exceptions/http_exception.dart";
-import "package:amaterasu/features/authentication/domain/validate_token_response.dart";
+import "package:amaterasu/features/accounts/domain/validate_token_response.dart";
 import "package:http/http.dart";
 import "package:riverpod_annotation/riverpod_annotation.dart";
 
@@ -49,8 +49,9 @@ class TwitchAuthApiDataSource {
     final route = Uri.https("id.twitch.tv", "/oauth2/revoke");
     final response = await _http.post(route, body: {"client_id": clientId, "token": accessToken});
 
-    // If the status code is not 200 there was an unexpected error.
-    if (response.statusCode != 200) {
+    // If the status code is not 200 or 400 there was an unexpected error.
+    // We dont care if the token was already revoked.
+    if (![200, 400].contains(response.statusCode)) {
       throw HttpException(uri: response.request?.url, statusCode: response.statusCode, body: response.body);
     }
   }

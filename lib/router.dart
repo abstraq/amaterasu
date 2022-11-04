@@ -1,5 +1,5 @@
-import "package:amaterasu/features/authentication/application/auth_notifier.dart";
-import "package:amaterasu/features/authentication/presentation/auth_screen.dart";
+import "package:amaterasu/features/accounts/application/auth_notifier.dart";
+import "package:amaterasu/features/accounts/presentation/auth_screen.dart";
 import "package:amaterasu/features/home/presentation/home_screen.dart";
 import "package:amaterasu/features/splash/presentation/splash_screen.dart";
 import "package:flutter/material.dart";
