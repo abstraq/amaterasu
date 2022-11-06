@@ -1,13 +1,11 @@
 import "dart:developer";
 
-import "package:amaterasu/core/data/shared_preferences.dart";
 import "package:amaterasu/router.dart";
 import "package:amaterasu/themes/default_theme.dart";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:logging/logging.dart";
-import "package:shared_preferences/shared_preferences.dart";
 
 /// Root widget of the application.
 class AmaterasuApp extends ConsumerWidget {
@@ -51,19 +49,5 @@ void _configureLogger() {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   _configureLogger();
-  final sharedPreferences = await SharedPreferences.getInstance();
-  runApp(
-    ProviderScope(
-      observers: [LoggerObserver()],
-      overrides: [sharedPreferencesProvider.overrideWithValue(sharedPreferences)],
-      child: const AmaterasuApp(),
-    ),
-  );
-}
-
-class LoggerObserver extends ProviderObserver {
-  @override
-  void didUpdateProvider(ProviderBase provider, Object? previousValue, Object? newValue, ProviderContainer container) {
-    Logger.root.info("Provider ${provider.name} updated from $previousValue to $newValue");
-  }
+  runApp(const ProviderScope(child: AmaterasuApp()));
 }

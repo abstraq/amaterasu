@@ -1,4 +1,4 @@
-import "package:amaterasu/features/accounts/data/twitch_account_preferences_data_source.dart";
+import "package:amaterasu/features/accounts/data/twitch_account_store_data_source.dart";
 import "package:amaterasu/features/accounts/data/twitch_auth_api_data_source.dart";
 import "package:amaterasu/features/accounts/domain/twitch_account.dart";
 import "package:riverpod_annotation/riverpod_annotation.dart";
@@ -11,21 +11,23 @@ part "account_repository.g.dart";
 /// the user with the Twitch API.
 class AccountRepository {
   final TwitchAuthApiDataSource _twitchAuthApi;
-  final TwitchAccountPreferencesDataSource _accountPreferences;
+  final TwitchAccountStoreDataSource _accountStore;
 
-  AccountRepository(TwitchAuthApiDataSource apiDataSource, TwitchAccountPreferencesDataSource preferencesDataSource)
+  AccountRepository(TwitchAuthApiDataSource apiDataSource, TwitchAccountStoreDataSource accountStoreDataSource)
       : _twitchAuthApi = apiDataSource,
-        _accountPreferences = preferencesDataSource;
+        _accountStore = accountStoreDataSource;
 
-  /// Stores the given [accessToken] in the secure storage.
+  /// Creates a new [TwitchAccount] with the given [accessToken] and sets it as
+  /// the current account.
   ///
-  /// Retrieves information about the Twitch account associated with the given
-  /// access token and stores the token in the secure storage.
+  /// If the user is already logged in, the account will be overridden with the
+  /// new one.
   ///
-  /// Throws an [HttpException] if the validation API call fails.
-  /// Throws an [InvalidTokenException] if the given [accessToken] is invalid.
+  /// Throws an [InvalidTokenException] if the token is invalid.
   ///
-  /// Returns the [TwitchAccount] associated with the given access token.
+  /// Throws a [HttpException] if the request to the validation endpoint fails.
+  ///
+  /// Returns the created [TwitchAccount].
   Future<TwitchAccount> addAccount(final String accessToken) async {
     final response = await _twitchAuthApi.validateToken(accessToken);
     if (response == null) throw InvalidTokenException();
@@ -38,43 +40,47 @@ class AccountRepository {
       accessToken: accessToken,
     );
 
-    await _accountPreferences.saveAccount(account);
+    await _accountStore.saveAccount(account);
     return account;
   }
 
+  Future<String?> retrieveCurrentAccountId() async => _accountStore.retrieveCurrentAccountId();
+
+  Future<Map<String, TwitchAccount>> retrieveAccounts() async => _accountStore.retrieveAccounts();
+
+  Future<void> setCurrentAccount(final TwitchAccount account) => _accountStore.setCurrentAccount(account.userId);
+
+  Future<void> unsetCurrentAccount() => _accountStore.unsetCurrentAccount();
+
+  /// Deletes the given [account] from the secure storage.
+  ///
+  /// If [revoke] is true the access token will be revoked before deleting the
+  /// account.
+  ///
+  ///
+  /// Throws a [HttpException] if the request to the revokation endpoint fails.
   Future<void> deleteAccount(final TwitchAccount account, {bool revoke = true}) async {
     if (revoke) await _twitchAuthApi.revokeToken(accessToken: account.accessToken, clientId: account.clientId);
-    await _accountPreferences.deleteAccount(account.userId);
-
-    // If the deleted account was the current account, unset the current account.
-    if (_accountPreferences.currentAccount()?.userId == account.userId) {
-      await _accountPreferences.unsetCurrentAccount();
-    }
+    await _accountStore.deleteAccount(account.userId);
   }
-
-  Future<void> setCurrentAccount(final TwitchAccount account) => _accountPreferences.setCurrentAccount(account.userId);
-
-  Future<void> unsetCurrentAccount() => _accountPreferences.unsetCurrentAccount();
 
   Future<bool> isValid(final TwitchAccount account) async {
     final response = await _twitchAuthApi.validateToken(account.accessToken);
     return response != null;
   }
-
-  TwitchAccount? currentAccount() => _accountPreferences.currentAccount();
 }
 
 @riverpod
 AccountRepository accountRepository(AccountRepositoryRef ref) {
   return AccountRepository(
     ref.watch(twitchAuthApiDataSourceProvider),
-    ref.watch(twitchAccountPreferencesProvider),
+    ref.watch(twitchAccountStoreProvider),
   );
 }
 
 @riverpod
-List<TwitchAccount> twitchAccounts(TwitchAccountsRef ref) {
-  return ref.watch(twitchAccountPreferencesProvider).accounts();
+Future<Map<String, TwitchAccount>> accounts(AccountsRef ref) {
+  return ref.watch(accountRepositoryProvider).retrieveAccounts();
 }
 
 // Thrown when an invalid token was provided by the user.

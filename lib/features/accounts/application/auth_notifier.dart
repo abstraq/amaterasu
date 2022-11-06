@@ -22,63 +22,65 @@ class AuthNotifier extends _$AuthNotifier {
   /// information.
   @override
   Future<TwitchAccount?> build() async {
-    final authRepository = ref.watch(accountRepositoryProvider);
-    return authRepository.currentAccount();
+    final accountRepository = ref.watch(accountRepositoryProvider);
+    final currentAccountId = await accountRepository.retrieveCurrentAccountId();
+    final accounts = await accountRepository.retrieveAccounts();
+    return accounts[currentAccountId];
   }
 
-  /// Signs in the user with the given [accessToken].
-  ///
-  /// The [accessToken] is stored in the secure storage and will be used to
-  /// authenticate requests to the Twitch API.
   Future<void> addAccount(final String accessToken) async {
     _log.info("Creating an account with access token and logging in...");
-    final authRepository = ref.watch(accountRepositoryProvider);
+    final accountRepository = ref.watch(accountRepositoryProvider);
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       // Create a new account with the given access token and set it as the current account.
-      final account = await authRepository.addAccount(accessToken);
-      await authRepository.setCurrentAccount(account);
+      final account = await accountRepository.addAccount(accessToken);
       _log.info("Logged in as ${account.username}(${account.userId}).");
-      // Update the state with the new account.
+
+      // Refresh the accounts provider.
+      ref.invalidate(accountsProvider);
+
       return account;
     });
   }
 
   Future<void> deleteAccount(final TwitchAccount account) async {
     _log.info("Deleting account ${account.username}(${account.userId})...");
-    final authRepository = ref.watch(accountRepositoryProvider);
+    final accountRepository = ref.watch(accountRepositoryProvider);
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      await authRepository.deleteAccount(account);
+      await accountRepository.deleteAccount(account);
       _log.info("Account ${account.username}(${account.userId}) deleted.");
-      return null;
+
+      // Refresh the accounts provider.
+      ref.invalidate(accountsProvider);
+
+      return state.value?.userId == account.userId ? null : state.value;
     });
   }
 
   Future<void> login(final TwitchAccount account) async {
     _log.info("Logging in as ${account.username}(${account.userId})...");
-    final authRepository = ref.watch(accountRepositoryProvider);
+    final accountRepository = ref.watch(accountRepositoryProvider);
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       // Create a new account with the given access token and set it as the current account.
-      await authRepository.setCurrentAccount(account);
+      await accountRepository.setCurrentAccount(account);
       _log.info("Logged in as ${account.username}(${account.userId}).");
-      // Update the state with the new account.
+
       return account;
     });
   }
 
-  /// Signs the user out of the application.
-  ///
-  /// This will remove the user's access token from the storage and revoke it.
   Future<void> logout() async {
     _log.info("Logging out of the current account...");
-    final authRepository = ref.watch(accountRepositoryProvider);
+    final accountRepository = ref.watch(accountRepositoryProvider);
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       // Log out of the current account.
-      await authRepository.unsetCurrentAccount();
+      await accountRepository.unsetCurrentAccount();
       _log.info("Successfully logged out.");
+
       return null;
     });
   }

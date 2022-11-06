@@ -20,21 +20,26 @@ class AccountTile extends ConsumerWidget {
         await ref.read(authNotifierProvider.notifier).login(account);
       },
       onLongPress: () => showModalBottomSheet(
-          backgroundColor: Colors.black,
-          context: context,
-          isScrollControlled: true,
-          isDismissible: true,
-          builder: (BuildContext context) {
-            return DraggableScrollableSheet(
-                initialChildSize: 0.15, //set this as you want
-                maxChildSize: 0.15, //set this as you want
-                minChildSize: 0.15, //set this as you want
-                expand: false,
-                builder: (context, scrollController) => ElevatedButton.icon(
-                    onPressed: () async => ref.read(authNotifierProvider.notifier).deleteAccount(account),
-                    icon: const Icon(Icons.delete_forever_rounded),
-                    label: const Text("Delete Account")));
-          }),
+        backgroundColor: Colors.black,
+        context: context,
+        isScrollControlled: true,
+        isDismissible: true,
+        builder: (BuildContext context) {
+          return Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.delete_forever_rounded),
+                title: const Text("Delete Account"),
+                onTap: () async {
+                  HapticFeedback.vibrate();
+                  Navigator.pop(context);
+                  await ref.read(authNotifierProvider.notifier).deleteAccount(account);
+                },
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 }

@@ -39,22 +39,23 @@ class TwitchAuthorizationWebView extends ConsumerWidget {
       },
     );
 
-    return WebView(
-      initialUrl: url.toString(),
-      javascriptMode: JavascriptMode.unrestricted,
-      navigationDelegate: (request) {
-        if (request.url.startsWith("https://abstraq.me/amaterasu")) {
-          final fragmentParams = Uri.splitQueryString(Uri.parse(request.url).fragment);
-          final accessToken = fragmentParams["access_token"];
-          if (accessToken != null) {
-            ref.read(authNotifierProvider.notifier).addAccount(accessToken);
+    return Scaffold(
+      appBar: AppBar(title: const Text("Connect with Twitch")),
+      body: WebView(
+        initialUrl: url.toString(),
+        javascriptMode: JavascriptMode.unrestricted,
+        navigationDelegate: (request) {
+          if (request.url.startsWith("https://abstraq.me/amaterasu")) {
+            final fragmentParams = Uri.splitQueryString(Uri.parse(request.url).fragment);
+            final accessToken = fragmentParams["access_token"];
+            if (accessToken != null) {
+              ref.read(authNotifierProvider.notifier).addAccount(accessToken);
+            }
+            return NavigationDecision.prevent;
           }
-
-          Navigator.of(context).pop();
-          return NavigationDecision.prevent;
-        }
-        return NavigationDecision.navigate;
-      },
+          return NavigationDecision.navigate;
+        },
+      ),
     );
   }
 }

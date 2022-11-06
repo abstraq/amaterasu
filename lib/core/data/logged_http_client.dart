@@ -1,6 +1,10 @@
 import "package:http/http.dart";
 import "package:logging/logging.dart";
 
+/// A [Client] that logs all requests and responses.
+///
+/// This class is used to log all requests and responses made by the application.
+/// Every http request made by the application should be made using this client.
 class LoggedHttpClient extends BaseClient {
   final Logger _log = Logger("Network");
   final Client _client = Client();
