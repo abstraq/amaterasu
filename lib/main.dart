@@ -1,11 +1,15 @@
 import "dart:developer";
 
+import "package:amaterasu/core/data/sqlite_database.dart";
 import "package:amaterasu/router.dart";
 import "package:amaterasu/themes/default_theme.dart";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:logging/logging.dart";
+import "package:path/path.dart" as path;
+import "package:path_provider/path_provider.dart";
+import "package:sqflite/sqflite.dart";
 
 /// Root widget of the application.
 class AmaterasuApp extends ConsumerWidget {
@@ -46,8 +50,24 @@ void _configureLogger() {
   });
 }
 
+Future<Database> _openDatabase() async {
+  final appSupportDir = await getApplicationSupportDirectory();
+  final databasePath = path.join(appSupportDir.path, "storage.sqlite3");
+  final database = openDatabase(databasePath, version: 1, onCreate: (db, version) async {
+    await db.execute(
+        "CREATE TABLE $twitchFollowsTableName (followed_at TEXT NOT NULL, from_id TEXT NOT NULL, to_id TEXT NOT NULL, PRIMARY KEY (from_id, to_id))");
+  });
+  return database;
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   _configureLogger();
-  runApp(const ProviderScope(child: AmaterasuApp()));
+
+  final database = await _openDatabase();
+
+  runApp(ProviderScope(
+    overrides: [databaseProvider.overrideWithValue(database)],
+    child: const AmaterasuApp(),
+  ));
 }
