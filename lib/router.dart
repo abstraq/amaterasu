@@ -1,8 +1,8 @@
+import "package:amaterasu/core/presentation/splash_screen.dart";
 import "package:amaterasu/features/accounts/application/auth_notifier.dart";
 import "package:amaterasu/features/accounts/presentation/account_switcher_screen.dart";
 import "package:amaterasu/features/accounts/presentation/twitch_authorization_web_view.dart";
 import "package:amaterasu/features/home/presentation/home_screen.dart";
-import "package:amaterasu/features/splash/presentation/splash_screen.dart";
 import "package:flutter/material.dart";
 import "package:go_router/go_router.dart";
 import "package:riverpod_annotation/riverpod_annotation.dart";
@@ -35,7 +35,10 @@ GoRouter router(RouterRef ref) {
       ]),
     ],
     redirect: (context, state) async {
-      final isAuthenticated = ref.read(authNotifierProvider).valueOrNull != null;
+      final authState = ref.read(authNotifierProvider);
+      if (authState.isLoading) return null;
+
+      final isAuthenticated = authState.valueOrNull != null;
 
       // If the user is authenticated, they should not be able to access the auth or splash screen.
       if (isAuthenticated && ["/splash", "/accounts", "/accounts/auth"].contains(state.location)) return "/";
