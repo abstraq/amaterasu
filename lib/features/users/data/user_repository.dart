@@ -1,3 +1,5 @@
+import "dart:async";
+
 import "package:amaterasu/features/users/data/sources/helix_user_data_source.dart";
 import "package:amaterasu/features/users/domain/twitch_user.dart";
 import "package:riverpod_annotation/riverpod_annotation.dart";
@@ -9,7 +11,7 @@ class UserRepository {
 
   UserRepository({required HelixUserDataSource api}) : _api = api;
 
-  Future<List<TwitchUser>> retrieveUsers(final List<String> userIds, {cache = false}) async {
+  Future<List<TwitchUser>> retrieveUsers(final List<String> userIds) async {
     final response = await _api.fetchUsers(userIds);
     return response.data;
   }
@@ -22,7 +24,12 @@ UserRepository userRepository(UserRepositoryRef ref) {
 }
 
 @riverpod
-Future<List<TwitchUser>> users(UsersRef ref, final List<String> userIds) async {
+Future<Map<String, TwitchUser>> users(UsersRef ref, {required List<String> userIds, required Duration ttl}) async {
   final users = await ref.watch(userRepositoryProvider).retrieveUsers(userIds);
-  return users;
+
+  final link = ref.keepAlive();
+  final timer = Timer(ttl, link.close);
+  ref.onDispose(timer.cancel);
+
+  return {for (final user in users) user.id: user};
 }

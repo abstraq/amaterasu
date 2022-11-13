@@ -55,7 +55,7 @@ Future<Database> _openDatabase() async {
   final databasePath = path.join(appSupportDir.path, "storage.sqlite3");
   final database = openDatabase(databasePath, version: 1, onCreate: (db, version) async {
     await db.execute(
-        "CREATE TABLE $twitchFollowsTableName (followed_at TEXT NOT NULL, from_id TEXT NOT NULL, to_id TEXT NOT NULL, PRIMARY KEY (from_id, to_id))");
+        "CREATE TABLE $twitchFollowsTableName (followed_at TEXT NOT NULL, user_id TEXT NOT NULL, broadcaster_id TEXT NOT NULL, PRIMARY KEY (user_id, broadcaster_id))");
   });
   return database;
 }

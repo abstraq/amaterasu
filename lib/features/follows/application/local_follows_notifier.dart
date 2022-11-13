@@ -1,6 +1,6 @@
 import "package:amaterasu/features/accounts/application/auth_notifier.dart";
 import "package:amaterasu/features/follows/data/follow_repository.dart";
-import "package:amaterasu/features/follows/domain/follow_connection.dart";
+import "package:amaterasu/features/follows/domain/follow.dart";
 import "package:riverpod_annotation/riverpod_annotation.dart";
 
 part "local_follows_notifier.g.dart";
@@ -8,7 +8,7 @@ part "local_follows_notifier.g.dart";
 @riverpod
 class LocalFollowsNotifier extends _$LocalFollowsNotifier {
   @override
-  Future<Map<String, FollowConnection>> build() async {
+  Future<Map<String, Follow>> build() async {
     final currentUserId = ref.watch(authNotifierProvider).valueOrNull?.userId;
     if (currentUserId == null) {
       return {};
@@ -16,10 +16,10 @@ class LocalFollowsNotifier extends _$LocalFollowsNotifier {
 
     final followRepository = ref.watch(followRepositoryProvider);
     final follows = await followRepository.fetchUserLocalFollows(currentUserId);
-    return {for (final follow in follows) follow.toId: follow};
+    return {for (final follow in follows) follow.broadcasterId: follow};
   }
 
-  Future<void> addFollow(final String broadcasterId) async {
+  Future<void> addFollow(final String broadcasterId, {DateTime? followedAt}) async {
     state = const AsyncLoading();
     final currentUserId = ref.watch(authNotifierProvider).valueOrNull?.userId;
     if (currentUserId == null) {
@@ -28,13 +28,17 @@ class LocalFollowsNotifier extends _$LocalFollowsNotifier {
 
     state = await AsyncValue.guard(() async {
       final followRepository = ref.watch(followRepositoryProvider);
-      final follow = FollowConnection(followedAt: DateTime.now().toUtc(), fromId: currentUserId, toId: broadcasterId);
+      final follow = Follow(
+        followedAt: followedAt ?? DateTime.now().toUtc(),
+        userId: currentUserId,
+        broadcasterId: broadcasterId,
+      );
       await followRepository.addLocalFollow(follow);
-      return {...state.requireValue, follow.toId: follow};
+      return {...state.requireValue, follow.broadcasterId: follow};
     });
   }
 
-  Future<void> addFollows(final List<String> broadcasterIds) async {
+  Future<void> addFollows(final List<Follow> follows) async {
     state = const AsyncLoading();
     final currentUserId = ref.watch(authNotifierProvider).valueOrNull?.userId;
     if (currentUserId == null) {
@@ -43,11 +47,8 @@ class LocalFollowsNotifier extends _$LocalFollowsNotifier {
 
     state = await AsyncValue.guard(() async {
       final followRepository = ref.watch(followRepositoryProvider);
-      final follows = broadcasterIds
-          .map((id) => FollowConnection(followedAt: DateTime.now().toUtc(), fromId: currentUserId, toId: id))
-          .toList();
       await followRepository.addLocalFollows(follows);
-      return {...state.requireValue, for (final follow in follows) follow.toId: follow};
+      return {...state.requireValue, for (final follow in follows) follow.broadcasterId: follow};
     });
   }
 
