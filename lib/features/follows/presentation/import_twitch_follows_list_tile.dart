@@ -1,5 +1,5 @@
 import "package:amaterasu/features/follows/application/local_follows_notifier.dart";
-import "package:amaterasu/features/users/domain/twitch_user.dart";
+import "package:amaterasu/features/follows/domain/follow.dart";
 import "package:amaterasu/features/users/presentation/twitch_user_circle_avatar.dart";
 import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
@@ -8,12 +8,13 @@ import "package:riverpod_annotation/riverpod_annotation.dart";
 part "import_twitch_follows_list_tile.g.dart";
 
 class ImportTwitchFollowsListTile extends ConsumerWidget {
-  final TwitchUser broadcaster;
+  final Follow follow;
 
-  const ImportTwitchFollowsListTile({super.key, required this.broadcaster});
+  const ImportTwitchFollowsListTile({super.key, required this.follow});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final broadcaster = follow.broadcaster!;
     return ListTile(
       leading: TwitchUserCircleAvatar(user: broadcaster, size: 42),
       title: Text(broadcaster.displayName),
