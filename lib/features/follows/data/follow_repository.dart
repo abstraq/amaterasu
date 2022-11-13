@@ -24,6 +24,8 @@ class FollowRepository {
 
   Future<void> addLocalFollow(final FollowConnection follow) async => _local.insertFollow(follow);
 
+  Future<void> addLocalFollows(final List<FollowConnection> follows) async => _local.bulkInsertFollows(follows);
+
   Future<void> removeLocalFollow({required String userId, required String broadcasterId}) async {
     await _local.deleteFollow(userId: userId, broadcasterId: broadcasterId);
   }

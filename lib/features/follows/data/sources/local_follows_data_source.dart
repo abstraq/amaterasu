@@ -18,6 +18,20 @@ class LocalFollowsDataSource {
     );
   }
 
+  Future<int> bulkInsertFollows(final List<FollowConnection> follows) async {
+    return _database.transaction((txn) async {
+      var count = 0;
+      for (final follow in follows) {
+        count += await txn.insert(
+          twitchFollowsTableName,
+          follow.toMap(),
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
+      }
+      return count;
+    });
+  }
+
   Future<List<FollowConnection>> fetchFollows(final String userId) async {
     final result = await _database.query(twitchFollowsTableName, where: "from_id = ?", whereArgs: [userId]);
     return result.map((e) => FollowConnection.fromMap(e)).toList();

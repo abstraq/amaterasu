@@ -34,6 +34,23 @@ class LocalFollowsNotifier extends _$LocalFollowsNotifier {
     });
   }
 
+  Future<void> addFollows(final List<String> broadcasterIds) async {
+    state = const AsyncLoading();
+    final currentUserId = ref.watch(authNotifierProvider).valueOrNull?.userId;
+    if (currentUserId == null) {
+      return;
+    }
+
+    state = await AsyncValue.guard(() async {
+      final followRepository = ref.watch(followRepositoryProvider);
+      final follows = broadcasterIds
+          .map((id) => FollowConnection(followedAt: DateTime.now().toUtc(), fromId: currentUserId, toId: id))
+          .toList();
+      await followRepository.addLocalFollows(follows);
+      return {...state.requireValue, for (final follow in follows) follow.toId: follow};
+    });
+  }
+
   Future<void> removeFollow(final String broadcasterId) async {
     state = const AsyncLoading();
     final currentUserId = ref.watch(authNotifierProvider).valueOrNull?.userId;

@@ -5,12 +5,12 @@ import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:riverpod_annotation/riverpod_annotation.dart";
 
-part "add_channel_list_tile.g.dart";
+part "import_twitch_follows_list_tile.g.dart";
 
-class AddChannelListTile extends ConsumerWidget {
+class ImportTwitchFollowsListTile extends ConsumerWidget {
   final TwitchUser broadcaster;
 
-  const AddChannelListTile({super.key, required this.broadcaster});
+  const ImportTwitchFollowsListTile({super.key, required this.broadcaster});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -18,14 +18,14 @@ class AddChannelListTile extends ConsumerWidget {
       leading: TwitchUserCircleAvatar(user: broadcaster, size: 42),
       title: Text(broadcaster.displayName),
       subtitle: const Text("Following on Twitch"),
-      trailing: _AddChannelButton(broadcasterId: broadcaster.id),
+      trailing: _ImportButton(broadcasterId: broadcaster.id),
     );
   }
 }
 
-class _AddChannelButton extends ConsumerWidget {
+class _ImportButton extends ConsumerWidget {
   final String broadcasterId;
-  const _AddChannelButton({required this.broadcasterId});
+  const _ImportButton({required this.broadcasterId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
