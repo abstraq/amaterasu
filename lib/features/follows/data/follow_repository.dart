@@ -20,13 +20,13 @@ class FollowRepository {
     return follows.data;
   }
 
-  Future<List<FollowConnection>> fetchUserLocalFollows(final userId) async {
-    return [];
+  Future<List<FollowConnection>> fetchUserLocalFollows(final userId) async => _local.fetchFollows(userId);
+
+  Future<void> addLocalFollow(final FollowConnection follow) async => _local.insertFollow(follow);
+
+  Future<void> removeLocalFollow({required String userId, required String broadcasterId}) async {
+    await _local.deleteFollow(userId: userId, broadcasterId: broadcasterId);
   }
-
-  Future<void> addLocalFollow(final FollowConnection follow) async {}
-
-  Future<void> removeLocalFollow(final userId) async {}
 }
 
 @riverpod

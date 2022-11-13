@@ -1,14 +1,12 @@
-import "package:amaterasu/features/accounts/data/account_repository.dart";
+import "package:amaterasu/features/accounts/application/auth_notifier.dart";
 import "package:amaterasu/features/follows/data/follow_repository.dart";
+import "package:amaterasu/features/follows/presentation/add_channel_list_tile.dart";
 import "package:amaterasu/features/users/data/user_repository.dart";
 import "package:amaterasu/features/users/domain/twitch_user.dart";
-import "package:cached_network_image/cached_network_image.dart";
 import "package:flutter/material.dart";
-import "package:flutter/services.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
-import "package:go_router/go_router.dart";
-import "package:octo_image/octo_image.dart";
 import "package:riverpod_annotation/riverpod_annotation.dart";
+import "package:skeletons/skeletons.dart";
 
 part "add_channel_list.g.dart";
 
@@ -22,34 +20,40 @@ class AddChannelList extends ConsumerWidget {
             final followedUsers = [...users]..sort((a, b) => a.displayName.compareTo(b.displayName));
             return ListView.builder(
               itemCount: followedUsers.length,
-              itemBuilder: (context, index) {
-                final user = followedUsers[index];
-                return ListTile(
-                  leading: OctoImage.fromSet(
-                    width: 42,
-                    fadeInDuration: const Duration(milliseconds: 50),
-                    fit: BoxFit.cover,
-                    image: CachedNetworkImageProvider(user.profileImageUrl),
-                    octoSet: OctoSet.circleAvatar(
-                      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                      text: Text(user.login.characters.first.toUpperCase()),
-                    ),
-                  ),
-                  title: Text(user.displayName),
-                  onTap: () => context.go("/channels/${user.id}"),
-                  trailing: ElevatedButton.icon(
-                    onPressed: () {
-                      HapticFeedback.vibrate();
-                    },
-                    icon: const Icon(Icons.add),
-                    label: const Text("Add"),
-                  ),
-                );
-              },
+              itemBuilder: (context, index) => AddChannelListTile(broadcaster: followedUsers[index]),
             );
           },
+          loading: () => ListView.builder(
+            itemCount: 8,
+            itemBuilder: (context, index) => ListTile(
+              leading: const SkeletonAvatar(style: SkeletonAvatarStyle(width: 42, shape: BoxShape.circle)),
+              title: SkeletonLine(
+                style: SkeletonLineStyle(
+                  height: 16,
+                  minLength: 50,
+                  maxLength: 125,
+                  randomLength: true,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+              subtitle: SkeletonLine(
+                style: SkeletonLineStyle(
+                  height: 16,
+                  width: 125,
+                  randomLength: false,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+              trailing: SkeletonItem(
+                child: ElevatedButton.icon(
+                    onPressed: null,
+                    style: ButtonStyle(minimumSize: MaterialStateProperty.all(const Size(125, 40))),
+                    icon: const Icon(Icons.add),
+                    label: const Text("Add")),
+              ),
+            ),
+          ),
           error: (_, __) => Center(child: Text(_.toString())),
-          loading: () => const Center(child: CircularProgressIndicator()),
         );
   }
 }
@@ -60,7 +64,7 @@ Future<List<TwitchUser>> _followedUsers(_FollowedUsersRef ref) async {
   final userRepository = ref.watch(userRepositoryProvider);
 
   // Get the current user's Twitch ID
-  final currentUserId = await ref.watch(accountRepositoryProvider).retrieveCurrentAccountId();
+  final currentUserId = ref.watch(authNotifierProvider).valueOrNull?.userId;
   if (currentUserId == null) return [];
 
   final follows = await followRepository.fetchUserTwitchFollows(currentUserId);

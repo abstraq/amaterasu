@@ -9,13 +9,9 @@ class AddChannelBottomSheet extends StatelessWidget {
     return SizedBox(
       height: MediaQuery.of(context).size.height * 0.75,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                "Add Channel",
-                style: Theme.of(context).textTheme.subtitle1,
-              )),
+          TextButton(onPressed: () {}, child: const Text("Add All")),
           const Expanded(child: AddChannelList()),
         ],
       ),
