@@ -13,8 +13,10 @@ class HelixChatEmote with _$HelixChatEmote {
     required List<String> format,
     required List<String> scale,
     required List<String> themeMode,
-    required String? emoteType,
-    required String? emoteSetId,
+    String? tier,
+    String? emoteType,
+    String? emoteSetId,
+    String? ownerId,
   }) = _HelixChatEmote;
   factory HelixChatEmote.fromJson(Map<String, dynamic> json) =>
       _$HelixChatEmoteFromJson(json);
