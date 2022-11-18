@@ -1,8 +1,8 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
+import "package:freezed_annotation/freezed_annotation.dart";
 import "package:amaterasu/core/domain/pagination_object.dart";
 
-part 'helix_get_chatters_response.freezed.dart';
-part 'helix_get_chatters_response.g.dart';
+part "helix_get_chatters_response.freezed.dart";
+part "helix_get_chatters_response.g.dart";
 
 @freezed
 class HelixGetChattersResponse with _$HelixGetChattersResponse {

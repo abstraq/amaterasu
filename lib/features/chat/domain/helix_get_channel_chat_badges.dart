@@ -1,39 +1,37 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
+import "package:freezed_annotation/freezed_annotation.dart";
 
-part 'helix_get_channel_chat_badges.freezed.dart';
-part 'helix_get_channel_chat_badges.g.dart';
+part "helix_get_channel_chat_badges.freezed.dart";
+part "helix_get_channel_chat_badges.g.dart";
 
 @freezed
-class HelixGetChannelChatBadgesResponse
-    with _$HelixGetChannelChatBadgesResponse {
-  const factory HelixGetChannelChatBadgesResponse({
-    required List<HelixChannelChatBadge> data,
-  }) = _HelixGetChannelChatBadgesResponse;
-  factory HelixGetChannelChatBadgesResponse.fromJson(
-          Map<String, dynamic> json) =>
-      _$HelixGetChannelChatBadgesResponseFromJson(json);
+class HelixGetBadgesResponse with _$HelixGetBadgesResponse {
+  const factory HelixGetBadgesResponse({
+    required List<HelixChannelChatBadgeSet> data,
+  }) = _HelixGetBadgesResponse;
+  factory HelixGetBadgesResponse.fromJson(Map<String, dynamic> json) =>
+      _$HelixGetBadgesResponseFromJson(json);
 }
 
 @freezed
-class HelixChannelChatBadge with _$HelixChannelChatBadge {
+class HelixChannelChatBadgeSet with _$HelixChannelChatBadgeSet {
   @JsonSerializable(fieldRename: FieldRename.snake)
-  const factory HelixChannelChatBadge({
+  const factory HelixChannelChatBadgeSet({
     required String setId,
-    required List<HelixChannelChatBadgeVersion> versions,
-  }) = _HelixChannelChatBadge;
-  factory HelixChannelChatBadge.fromJson(Map<String, dynamic> json) =>
-      _$HelixChannelChatBadgeFromJson(json);
+    required List<HelixChatBadge> versions,
+  }) = _HelixChannelChatBadgeSet;
+  factory HelixChannelChatBadgeSet.fromJson(Map<String, dynamic> json) =>
+      _$HelixChannelChatBadgeSetFromJson(json);
 }
 
 @freezed
-class HelixChannelChatBadgeVersion with _$HelixChannelChatBadgeVersion {
+class HelixChatBadge with _$HelixChatBadge {
   @JsonSerializable(fieldRename: FieldRename.snake)
-  const factory HelixChannelChatBadgeVersion({
+  const factory HelixChatBadge({
     required String id,
-    required String imageUrl1x,
-    required String imageUrl2x,
-    required String imageUrl4x,
-  }) = _HelixChannelChatBadgeVersion;
-  factory HelixChannelChatBadgeVersion.fromJson(Map<String, dynamic> json) =>
-      _$HelixChannelChatBadgeVersionFromJson(json);
+    @JsonKey(name: "image_url_1x") required String imageUrl1x,
+    @JsonKey(name: "image_url_2x") required String imageUrl2x,
+    @JsonKey(name: "image_url_4x") required String imageUrl4x,
+  }) = _HelixChatBadge;
+  factory HelixChatBadge.fromJson(Map<String, dynamic> json) =>
+      _$HelixChatBadgeFromJson(json);
 }

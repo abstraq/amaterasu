@@ -1,6 +1,6 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
-part 'helix_get_chat_settings.freezed.dart';
-part 'helix_get_chat_settings.g.dart';
+import "package:freezed_annotation/freezed_annotation.dart";
+part "helix_get_chat_settings.freezed.dart";
+part "helix_get_chat_settings.g.dart";
 
 @freezed
 class HelixGetChatSettingsResponse with _$HelixGetChatSettingsResponse {

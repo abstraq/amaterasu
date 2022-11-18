@@ -1,6 +1,6 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
-part 'helix_get_user_chat_color.freezed.dart';
-part 'helix_get_user_chat_color.g.dart';
+import "package:freezed_annotation/freezed_annotation.dart";
+part "helix_get_user_chat_color.freezed.dart";
+part "helix_get_user_chat_color.g.dart";
 
 @freezed
 class HelixGetUserChatColorResponse with _$HelixGetUserChatColorResponse {
